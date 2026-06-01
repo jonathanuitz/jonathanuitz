@@ -1,0 +1,45 @@
+name: Generate Metrics
+
+on:
+  schedule:
+    # Se ejecuta todos los días a medianoche UTC
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  github-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate detailed metrics
+        uses: lowlighter/metrics@latest
+        with:
+          # Token con permisos de lectura del perfil. Crea uno en:
+          # https://github.com/settings/tokens (scope: repo + read:user)
+          # y guárdalo como secret METRICS_TOKEN en el repo.
+          token: ${{ secrets.METRICS_TOKEN }}
+          user: jonathanuitz
+          template: classic
+          base: header, activity, community, repositories, metadata
+          config_timezone: America/Mexico_City
+
+          # Lenguajes más usados
+          plugin_languages: yes
+          plugin_languages_analysis_timeout: 15
+          plugin_languages_categories: markup, programming
+          plugin_languages_colors: github
+          plugin_languages_limit: 8
+
+          # Estadísticas de actividad por horario (¿eres búho o madrugador?)
+          plugin_habits: yes
+          plugin_habits_from: 200
+          plugin_habits_days: 14
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+
+          # Aislar el SVG generado
+          filename: github-metrics.svg
